@@ -1,1 +1,1 @@
-# R_Quantitative_Analysis
+# Analiza danych ilościowych z wykorzystaniem R 
