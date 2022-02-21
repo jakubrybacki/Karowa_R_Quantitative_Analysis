@@ -1,0 +1,19 @@
+variable;type;description
+id;numeric;student’s ID
+schoolType;character;School type
+sex;character;Sex of student
+age;numeric;How old student was in 2009
+scorePISAMath;numeric;Score on PISA mathematics test (pseudoEAP estimator)
+scorePISARead;numeric;Score on PISA reading test (pseudoEAP estimator)
+scorePISAScie;numeric;Score on PISA science test (pseudoEAP estimator)
+scoreKKS;numeric;Score on Cultural Competences Scale [60-240]
+scoreKNS;numeric;Score on Snyder's Adult Hope Scale [8-64]
+scoreTMR;numeric;Score on Raven's Progressive Matrices test [0-60]
+scoreKKS_5cat;character;Score on Cultural Competences Scale [5 categories]
+score5KNS_5cat;character;Score on Snyder's Adult Hope Scale [5 categories]
+scoreTMR_5cat;character;Score on Raven's Progressive Matrices test [5 categories]
+income;numeric;Houshold monthly income
+wealth;numeric;Wealth index
+parEdu;numeric;Highest parental education in years
+hisei;numeric;Highest parental occupational status (ISEI)
+noPersHous;numeric;Number of persons in a household
