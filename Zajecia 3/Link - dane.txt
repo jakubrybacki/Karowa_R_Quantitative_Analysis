@@ -1,0 +1,3 @@
+https://archive.ics.uci.edu/ml/datasets/wine+quality
+
+https://www.sciencedirect.com/science/article/abs/pii/S0167923609001377?via%3Dihub
