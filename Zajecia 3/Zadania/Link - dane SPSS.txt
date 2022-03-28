@@ -1,0 +1,4 @@
+Dane SPSS pochodzą z Pew Research Center
+https://www.pewresearch.org/tools-and-resources/
+
+W sekcji Dataset Downloads wybieramy Politics and Policy. 
