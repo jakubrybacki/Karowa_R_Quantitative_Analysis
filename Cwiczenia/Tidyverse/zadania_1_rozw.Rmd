@@ -1,0 +1,211 @@
+---
+title: "Zadania do pierwszych zajęć"
+author: "Katarzyna Abramczuk, Agnieszka Karlińska, Jakub Rybacki"
+date: "18.03.2022"
+output:
+  html_notebook
+---
+
+![](https://raw.githubusercontent.com/tzoltak/3502-SCC-ADR/master/belka_gorna.png)
+
+Korzystać będziemy ze znanego nam zbioru danych z badania PISA 2009.
+
+```{r}
+library(readxl)
+pisa <- read_excel("PISA-2009-pogimnazjalne.xlsx",
+                   sheet = "data")
+```
+
+### Zadanie 1. 
+
+Korzystając z funkcji `c()`, utwórz wektor złożony z liczb 4, 5, 6 oraz ciągu znaków "tekst". Sprawdź, jakiego rodzaju wektor został zwrócony (używając funkcji `str()`). 
+
+```{r}
+wek <- c(4, 5, 5, "tekst")
+str(wek)
+```
+
+### Zadanie 2.
+
+Utwórz wektor zawierający sekwencję liczb całkowitych od 64 do 128.
+
+```{r}
+wek_1 <- 64:128
+wek_1
+# alternatywnie:
+wek_2 <- seq(64, 128, by = 1)
+wek_2
+```
+
+### Zadanie 3.
+
+Utwórz w ramce danych `pisa` nowe kolumny:
+
+- `incomePerPerson`, zawierającą dla każdego badanego wielkość dochodu gospodarstwa domowego podzieloną przez liczbę jego członków;
+- `scoreKNSmin0`, zawierającą dla każdego badanego jego wynik testu Kwestionariusza Nadziei na Sukces pomniejszoną o 8;
+- `scoreTMRsquared` zawierającą dla każdego badanego jego wynik testu matryc Ravena podniesiony do kwadratu
+
+```{r}
+pisa$incomePerPerson <- pisa$income / pisa$noPersHous
+pisa$scoreKNSmin0 <- pisa$scoreKNS - 8
+pisa$scoreTMRsquared <- pisa$scoreTMR ^ 2
+```
+
+### Zadanie 4.
+
+Utwórz w ramce danych `pisa` nową kolumnę `scoresPISAAllOver500`, która będzie wektorem logicznym, a jej wartości będą wskazywać, czy dany uczeń osiągnął wynik ponad 500 **z każdego** z trzech testów PISA.
+
+```{r}
+pisa$scoresPISAAllOver500 <-
+  pisa$scorePISAMath > 500 &
+  pisa$scorePISARead > 500 & pisa$scorePISAScie > 500
+```
+
+Utwórz w ramce danych `pisa` nową kolumnę `scoresPISAAnyBelow400`, która będzie wektorem logicznym, a jej wartości będą wskazywać, czy dany uczeń osiągnął wynik poniżej 400 **z choć jednego** z trzech testów PISA.
+
+```{r}
+pisa$scoresPISAAnyBelow400 <-
+  pisa$scorePISAMath < 400 |
+  pisa$scorePISARead < 400 | pisa$scorePISAScie < 400
+```
+
+
+### Zadanie 5.
+
+Korzystając z poznanych na zajęciach sposobów wybierania wierszy ramki danych:
+
+1. Wybierz wiersze od 1 do 5 oraz od 30 do 40.
+2. Wybierz uczennice, które uzyskały w teście z matematyki wynik powyżej 500
+
+```{r}
+pisa[c(1:5, 30:40),]
+pisa[pisa$sex == "female" & pisa$scorePISAMath > 500, ]
+```
+
+### Zadanie 6.
+
+Utwórz nową ramkę danych `pisaTMR`, w której znajdą się wyłącznie uczniowie, którzy uzyskali niski lub bardzo niski wynik testu matryc Ravena (TMR). Nie włączaj do tworzonej ramki danych tych, dla których wynik testu jest nieznany. Wskazówka: wykorzystaj operator `%in%`.
+
+```{r}
+pisaTMR <- pisa[pisa$scoreTMR_5cat %in% c("low", "very low"), ]
+pisaTMR
+# dla porównania: w wersji bez %in% pojawia się problem z brakami danych. 
+pisaTMR2 <- pisa[pisa$scoreTMR_5cat == "low" | pisa$scoreTMR_5cat == "very low" ,]
+pisaTMR2
+```
+
+### Zadanie 7.
+
+Korzystając z funkcji `filter()`, utwórz nową *ramkę danych* `pisaWybrani` zawierającą tylko kobiety uczące się w technikach, które osiągnęły wynik co najmniej 200 punktów w Kwestionariuszu Kompetencji Społecznych (KKS).
+
+```{r}
+pisaWybrani <- filter(pisa, sex == "female", schoolType	== "T", scoreKKS >= 200)
+pisaWybrani2 <- filter(pisa, sex %in% "female", schoolType %in% "T", scoreKKS >= 200)
+```
+
+### Zadanie 8.
+
+Korzystając z funkcji `select()`, przygotuj ramkę danych zawierają zmienne opisujące id badanego, typ szkoły, płeć, wyniki testów PISA oraz wyniki testów KKS, KNS i TMR wyrażone w  formie 5 kategorii:
+
+```{r}
+select(pisa, id, schoolType, sex, contains("PISA"), contains("cat"))
+```
+
+### Zadanie 9.
+
+W ramce danych `pisa` utwórz nową zmienną `scoreTMRMeanNA`, która przyjmie wartość:
+
+- zmiennej `scoreTMR`, jeśli dla danego ucznia **nie jest** ona brakiem danych
+- 48 (jest to średniej wartości zmiennej `scoreTMR` wśród wszystkich uczniów), jeśli wartość zmiennej `scoreTMR` jest dla danego ucznia brakiem danych
+
+Wykorzystaj w tym celu funkcje `mutate()` i `ifelse()`.
+
+```{r}
+pisa <- pisa %>%
+  mutate(scoreTMRMean = ifelse(is.na(scoreTMR),
+                             48,
+                             scoreTMR))
+```
+
+### Zadanie 10.
+
+Korzystając z funkcji `mutate()` i `recode()`, przetłumacz na język polski wartości zmiennej `scoreKKS_5cat`:
+
+```{r}
+# takie wartości przyjmuje zmienna `scoreKKS_5cat`:
+unique(pisa$scoreKKS_5cat)
+# poniżej napisz kod, który dokona odpowiedniego przekształcenia
+pisa %>%
+  mutate(scoreKKS_5cat = recode(scoreKKS_5cat, "high" = "wysoki", 
+                                "medium" = "średni",
+                                "low" = "niski",
+                                "very high" = "bardzo wysoki",
+                                "very low" = "bardzo niski"))
+```
+
+### Zadanie 11.
+
+Przekształć ramkę danych `pisa` do postaci wąskiej w taki sposób, aby zebrać kolumny zawierające wyniki testów KKS, KNS i TMR (podane w postaci liczbowej).
+
+```{r}
+pisa %>%
+  pivot_longer(c(scoreKKS, scoreKNS, scoreTMR), 
+               names_to = "test", 
+               values_to = "results")
+```
+
+## Część II
+
+W tej części zadań skorzystamy ze zbioru danych `gapminder`, który znajduje się w pakiecie o takiej samej nazwie. 
+
+```{r}
+install.packages("gapminder")
+library(gapminder)
+```
+
+Zawiera on informacje o liczbie ludności, oczekiwanej długości życia i PKB per capita dla poszczególnych krajów i kontynentów. Opis zmiennych można znaleźć w dokumentacji:
+
+```{r}
+?gapminder
+```
+
+### Zadanie 1.
+
+Wybierz dane z roku 2007 roku dla Europy i posortuj obserwacje w porządku malejącym według PKB per capita.
+
+```{r}
+gapminder %>% 
+  filter(continent == "Europe", year == "2007") %>%
+  arrange(desc(gdpPercap))
+```
+
+### Zadanie 2.
+
+Sprawdź, ile w latach 1957 i 2007 wyniósł w Polsce PKB per capita.
+
+```{r}
+gapminder %>%
+  filter(country == "Poland", year %in% c(1957, 2007)) %>%
+  select(year, gdpPercap)
+```
+
+### Zadanie 3.
+
+Wybierz obserwacje z roku 2007, a następnie utwórz zmienną `pop_mln`, przeliczając liczbę ludności na miliony. W trzecim kroku wykonaj sortowanie w porządku rosnącym według wartości nowej zmiennej.
+
+```{r}
+gapminder %>%
+  filter(year == "2007") %>%
+  mutate(pop_mln = pop/1000000) %>%
+  arrange(pop_mln)
+```
+
+
+
+---
+
+Materiały na zajęcia *Analiza danych ilościowych z wykorzystaniem R* zostały przygotowane w ramach projektu *Program zintegrowanych działań na rzecz rozwoju Uniwersytetu Warszawskiego*, realizowanego w ramach programu operacyjnego Wiedza Edukacja Rozwój, oś priorytetowa III. *Szkolnictwo wyższe dla gospodarki i rozwoju*, działanie: 3.5 *Kompleksowe programy szkół wyższych*.
+
+---
+
+![](https://raw.githubusercontent.com/tzoltak/3502-SCC-ADR/master/belka_dolna.png)
