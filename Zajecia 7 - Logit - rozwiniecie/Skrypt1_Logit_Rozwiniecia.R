@@ -42,8 +42,8 @@ colnames(dane_DF)
   summary(dane_DF$gndr)
   summary(dane_DF$yrbrn)
   
-  # Wybór zmiennych 
-  daneModel <- dane_DF %>% select(stfhlth, health, stflife, gndr, yrbrn) 
+  # Wybór zmiennych - paczka MASS robi konflikty z dplyr
+  daneModel <- dane_DF %>% dplyr::select(stfhlth, health, stflife, gndr, yrbrn) 
     
   # Filtrujemy braki danych 
   braki_danych <- c("Refusal", "Don't know", "No answer")
@@ -64,7 +64,7 @@ colnames(dane_DF)
   model <- polr(formula, data = daneModel, Hess = TRUE)
   summary(model)
   
-  # Dodajemy factor
+  # Dodajemy factor - paczka reaguje ostrzezeniem. 
   formula <- stfhlth ~ ocena_zadowolenie + health + yrbrn + gndr
   model <- polr(formula, data = daneModel, Hess = TRUE)
   summary(model)
@@ -78,6 +78,13 @@ colnames(dane_DF)
   
   # Odds - ratio - wyliczane manualnie
   exp(coef(model))
+  
+  # Predykcje 
+  predClasses <- predict(model, data = daneModel)
+  head(predClasses, 5)
+
+  predProbs <-  predict(model, data = daneModel, type="probs")
+  head(predProbs, 5)
   
 # Mozemy jednak miec dwie sytuacje w których zalozenia tego modelu nie sa 
 # spelnione - np. wyniki nie sa uporzadkowane badz wplyw zmiennej bedzie 
@@ -94,7 +101,7 @@ colnames(dane_DF)
   summary(dane_DF$lrscale)
   
   # Wybor zmiennych
-  daneModel <- dane_DF %>% select(prtclgpl, yrbrn, lrscale) %>%
+  daneModel <- dane_DF %>% dplyr::select(prtclgpl, yrbrn, lrscale) %>%
     mutate(lrscale = as.numeric(lrscale)) %>%
     mutate(yrbrn = as.numeric(yrbrn))
   
@@ -116,4 +123,8 @@ colnames(dane_DF)
   model <- multinom(formula, data = daneModel)
   summary(model)
   
+  # Predykcje
+  predClasses <- predict(model, newdata=daneModel)
+  
+  predProbs <- predict(model, type="probs", newdata=daneModel)
   
